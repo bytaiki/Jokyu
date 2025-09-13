@@ -25,6 +25,7 @@ public class UserServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         User currentUser = (User) session.getAttribute("user");
 
+        // Check if the user is logged in and is an admin
         if (currentUser == null || !"admin".equals(currentUser.getRole())) {
             resp.sendRedirect("login.jsp");
             return;
@@ -37,6 +38,7 @@ public class UserServlet extends HttpServlet {
             session.removeAttribute("successMessage");
         }
 
+        // Handle different actions
         if ("list".equals(action) || action == null) {
             Collection<User> users = userDAO.getAllUsers();
             req.setAttribute("users", users);
@@ -63,11 +65,13 @@ public class UserServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         User currentUser = (User) session.getAttribute("user");
 
+        // Check if the user is logged in and is an admin
         if (currentUser == null || !"admin".equals(currentUser.getRole())) {
             resp.sendRedirect("login.jsp");
             return;
         }
 
+        // Handle different actions
         if ("add".equals(action)) {
             String username = req.getParameter("username");
             String password = req.getParameter("password");
@@ -77,7 +81,7 @@ public class UserServlet extends HttpServlet {
                 userDAO.addUser(new User(username, UserDAO.hashPassword(password), role));
                 session.setAttribute("successMessage", "ユーザーを追加しました。");
             } else {
-                req.setAttribute("errorMessage", "ユーザーIDは既に存在します。");
+                req.setAttribute("errorMessage", "ユーザーID は既に存在します。");
             }
         } else if ("update".equals(action)) {
             String username = req.getParameter("username");
@@ -104,5 +108,7 @@ public class UserServlet extends HttpServlet {
             userDAO.toggleUserEnabled(username, enabled);
             session.setAttribute("successMessage", username + "のアカウントを" + (enabled ? "有効" : "無効") + "にしました。");
         }
+
+        resp.sendRedirect("users?action=list");
     }
 }
